@@ -1,95 +1,96 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
 
-export default function Home() {
+import { useState } from "react";
+import TextareaAutosize from "react-textarea-autosize";
+import ChatLog from "./components/ChatLog";
+
+export interface IMessage {
+  sender: "user" | "bot";
+  content: string;
+}
+
+const HomePage = () => {
+  const [inputValue, setInputValue] = useState<string>("");
+  const [loadingResponse, setLoadingResponse] = useState<boolean>(false);
+  const [chatLog, setChatLog] = useState<IMessage[]>([]);
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInputValue(event.target.value);
+  };
+
+  function addMessage(sender: "user" | "bot", content: string) {
+    const message = { sender, content };
+    setChatLog((prev) => [...prev, message]);
+  }
+
+  async function sendMessage() {
+    if (!inputValue.trim() || loadingResponse) return;
+
+    setLoadingResponse(true);
+    const _message = inputValue;
+    addMessage("user", _message);
+    setInputValue("");
+
+    try {
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a very mean person, who likes to throw a lot of very creative insults. You also respond to the message they send you in their original language",
+            },
+            {
+              role: "user",
+              content: `generate me an insult in response to the following message: ${_message}`,
+            },
+          ],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      addMessage("bot", data.response);
+    } catch (error) {
+      console.error("Fetch error:", error);
+      addMessage(
+        "bot",
+        "Sorry, I couldn't process your request. Please try again."
+      );
+    } finally {
+      setLoadingResponse(false);
+    }
+  }
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+    <div className="homepage-container">
+      <h1 className="title">Chat Assistant</h1>
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+      <ChatLog log={chatLog} />
+
+      <div className="input-container">
+        <TextareaAutosize
+          value={inputValue}
+          onChange={handleInputChange}
+          placeholder="Talk to me"
+          className="text-area"
+          disabled={loadingResponse}
+        />
+        <button
+          onClick={sendMessage}
+          disabled={loadingResponse}
+          className="send-button"
         >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          Send
+        </button>
+      </div>
     </div>
   );
-}
+};
+
+export default HomePage;
