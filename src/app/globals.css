@@ -67,6 +67,7 @@ body {
 }
 
 .homepage-container {
+  width: 100%;
   max-width: 800px;
   height: 100%;
   margin: 10vh auto;
@@ -86,8 +87,14 @@ body {
   color: #1a1a1a;
 }
 
-.chat-log {
+.chat-log-container {
   flex: 1;
+  overflow-y: auto;
+  max-height: 60vh;
+  width: 100%;
+}
+
+.chat-log {
   margin: 0 40px;
   display: flex;
   flex-direction: column;
@@ -99,6 +106,55 @@ body {
   display: flex;
   align-items: flex-start;
   gap: 10px;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 90%;
+}
+
+.modal-input-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.modal-input-group input {
+  flex: 1;
+  padding: 8px;
+}
+
+.modal-close {
+  margin-top: 20px;
+}
+
+.people-button {
+  display: flex;
+  padding: 12px 20px;
+  justify-content: center;
+  align-items: center;
+  font-size: 16px;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .text-area {
@@ -121,7 +177,6 @@ body {
 .send-button {
   display: flex;
   padding: 12px 20px;
-  height: 100%;
   justify-content: center;
   align-items: center;
   font-size: 16px;

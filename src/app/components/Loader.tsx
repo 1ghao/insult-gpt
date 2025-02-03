@@ -18,7 +18,7 @@ const dotStyle: React.CSSProperties = {
   height: "0.5rem",
   backgroundColor: "#000",
   borderRadius: "50%",
-  margin: "0 4px",
+  margin: "0 4px 10px",
 };
 
 const Loader: React.FC = () => {

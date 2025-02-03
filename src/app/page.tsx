@@ -3,16 +3,38 @@
 import { useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import ChatLog from "./components/ChatLog";
+import Image from "next/image";
+import PeopleModal from "./components/PeopleModal";
 
 export interface IMessage {
   sender: "user" | "bot";
   content: string;
 }
 
+export interface IContact {
+  id: number;
+  name: string;
+  // description: string;
+}
+
+function stringChatLog(chatLog: IMessage[]): string {
+  return chatLog
+    .map(
+      (message) =>
+        `Sender: ${message.sender === "bot" ? "You" : "Friend"}
+Message: ${message.content}`
+    )
+    .join("\n\n");
+}
+
 const HomePage = () => {
   const [inputValue, setInputValue] = useState<string>("");
   const [loadingResponse, setLoadingResponse] = useState<boolean>(false);
   const [chatLog, setChatLog] = useState<IMessage[]>([]);
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [people, setPeople] = useState<IContact[]>([
+    { id: 1, name: "Gonzalo Gómez de la Casa" },
+  ]);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(event.target.value);
@@ -40,11 +62,19 @@ const HomePage = () => {
             {
               role: "system",
               content:
-                "You are a very mean person, who likes to throw a lot of very creative insults. You also respond to the message they send you in their original language",
+                "You are a person who is chatting with another one. You are one of their closests friends and as such you guys throw each other very mean insults, of very different topics. You are to respond to each message with the absolute meanest insult you  can think of. Do not held back, you are not going to hurt him, afterall, you guys are friends. Have no boundaries with the insult. The messages I will pass to you follow the following interface: {sender: You || Friend; content: the actual content of the message}",
             },
             {
               role: "user",
-              content: `generate me an insult in response to the following message: ${_message}`,
+              content: `generate me an insult (respond in the original language) in response to the following chatlog: ${stringChatLog(
+                [
+                  ...chatLog,
+                  {
+                    sender: "user",
+                    content: inputValue,
+                  },
+                ]
+              )}. Respond only with the content of your message. Do not add other information, you are takig the role of a human being, as such, a human would only write the message's content, not in any other format such as a js object. `,
             },
           ],
         }),
@@ -74,6 +104,18 @@ const HomePage = () => {
       <ChatLog log={chatLog} />
 
       <div className="input-container">
+        <button
+          className="people-button"
+          onClick={() => setIsModalOpen(true)}
+          title="Manage People"
+        >
+          <Image
+            src="/src/app/assets/chat/person.svg"
+            alt="People"
+            width={30}
+            height={30}
+          />
+        </button>
         <TextareaAutosize
           value={inputValue}
           onChange={handleInputChange}
@@ -89,6 +131,13 @@ const HomePage = () => {
           Send
         </button>
       </div>
+      {isModalOpen && (
+        <PeopleModal
+          people={people}
+          setPeople={setPeople}
+          onClose={() => setIsModalOpen(false)}
+        />
+      )}
     </div>
   );
 };
