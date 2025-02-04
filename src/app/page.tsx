@@ -3,7 +3,6 @@
 import { useState } from "react";
 import TextareaAutosize from "react-textarea-autosize";
 import ChatLog from "./components/ChatLog";
-import Image from "next/image";
 import PeopleModal from "./components/PeopleModal";
 
 const API_BASE_URL = "https://serverdewan.ddns.net:3000/api";
@@ -16,7 +15,7 @@ export interface IMessage {
 export interface IContact {
   id: number;
   name: string;
-  // description: string;
+  description: string;
 }
 
 function stringChatLog(chatLog: IMessage[]): string {
@@ -35,8 +34,15 @@ const HomePage = () => {
   const [chatLog, setChatLog] = useState<IMessage[]>([]);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [people, setPeople] = useState<IContact[]>([
-    { id: 1, name: "Gonzalo Gómez de la Casa" },
+    { id: 0, name: "Default", description: "" },
+    {
+      id: 1,
+      name: "Gonzalo Gómez de la Casa",
+      description:
+        "No le gusta que le llamen moroso; es el delegado de su clase; su clase no es lo que uno llamaría ejemplar; tiene el pelo largo; una vez se burlaron de él porque llevaba camisa de rayas; si selecciono a esta persona llámale moroso al final",
+    },
   ]);
+  const [selectedPersonId, setSelectedPersonId] = useState<number>(0);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(event.target.value);
@@ -49,6 +55,8 @@ const HomePage = () => {
 
   async function sendMessage() {
     if (!inputValue.trim() || loadingResponse) return;
+
+    const selectedPerson = people.find((p) => p.id === selectedPersonId);
 
     setLoadingResponse(true);
     const _message = inputValue;
@@ -76,7 +84,9 @@ const HomePage = () => {
                     content: inputValue,
                   },
                 ]
-              )}. Respond only with the content of your message. Do not add other information, you are takig the role of a human being, as such, a human would only write the message's content, not in any other format such as a js object. `,
+              )}. Respond only with the content of your message. Do not add other information, you are taking the role of a human being, as such, a human would only write the message's content, not in any other format such as a js object. You may find addition information about the user that you may use against them here (do not panic if the following is empty, just ignore it): {name: ${
+                selectedPerson?.name
+              }, description: ${selectedPerson?.description}})`,
             },
           ],
         }),
@@ -106,18 +116,31 @@ const HomePage = () => {
       <ChatLog log={chatLog} />
 
       <div className="input-container">
-        <button
-          className="people-button"
-          onClick={() => setIsModalOpen(true)}
-          title="Manage People"
-        >
-          <Image
-            src="/src/app/assets/chat/person.svg"
-            alt="People"
-            width={30}
-            height={30}
-          />
-        </button>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <button
+            className="people-button"
+            onClick={() => setIsModalOpen(true)}
+            title="Manage People"
+          >
+            +
+          </button>
+          <select
+            value={selectedPersonId}
+            onChange={(e) => setSelectedPersonId(Number(e.target.value))}
+            className="text-input"
+            style={{
+              padding: "10px",
+              borderRadius: "4px",
+              border: "2px solid #ccc",
+            }}
+          >
+            {people.map((person) => (
+              <option key={person.id} value={person.id}>
+                {person.name}
+              </option>
+            ))}
+          </select>
+        </div>
         <TextareaAutosize
           value={inputValue}
           onChange={handleInputChange}
