@@ -4,9 +4,10 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "build": "next build && next export",
+    "start": "next start0",
+    "lint": "next lint",
+    "deploy": "npm run build && gh-pages -d out"
   },
   "dependencies": {
     "motion": "^12.0.6",
