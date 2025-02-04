@@ -6,7 +6,7 @@ import ChatLog from "./components/ChatLog";
 import Image from "next/image";
 import PeopleModal from "./components/PeopleModal";
 
-const API_BASE_URL = "http://34.74.12.206:3000/api";
+const API_BASE_URL = "https://serverdewan.ddns.net:3000/api";
 
 export interface IMessage {
   sender: "user" | "bot";
