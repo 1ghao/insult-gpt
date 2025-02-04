@@ -6,6 +6,8 @@ import ChatLog from "./components/ChatLog";
 import Image from "next/image";
 import PeopleModal from "./components/PeopleModal";
 
+const API_BASE_URL = "http://34.74.12.206:3000/api";
+
 export interface IMessage {
   sender: "user" | "bot";
   content: string;
@@ -54,7 +56,7 @@ const HomePage = () => {
     setInputValue("");
 
     try {
-      const response = await fetch("/api/chat", {
+      const response = await fetch(`${API_BASE_URL}/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
